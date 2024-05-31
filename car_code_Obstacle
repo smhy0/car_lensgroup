@@ -1,0 +1,153 @@
+uint8_t goObstacle() {
+    static uint8_t status = 0;                    // 起始状态
+    static uint16_t tab = 0;                      // 计数器  备用
+    static uint16_t unnormalNum = 0;              // 异常计数器
+
+    // readSensor，用于读取图像判断依据
+    // 读取到的数据用于判断是否检测到障碍物
+    bool detectedObstacle = readSensor();
+
+    switch (status) {
+        case 0:
+            // 在0状态继续搜索障碍物
+            if (detectedObstacle) {
+                status = 1; 
+                tab = 1; 
+                unnormalNum++; 
+
+                BEEP(500);
+
+                if (unnormalNum < 5) { // 如果异常计数器小于5，重置状态到0
+                    status = 0;
+                    unnormalNum = 0;
+                }
+            }
+            break;
+
+        case 1:  
+            // 在1状态检查是否需要通过障碍
+            if (detectEdgeObstacle() && !detectHighObstacle()) {
+                status = 2; // 准备通过障碍
+                tab++;
+            } else {  
+                status = 3; // 通过障碍
+                tab++;
+            }
+            unnormalNum = 0;   
+            break;  
+
+        case 2:  
+            // 在2状态，准备通过障碍
+            // 这里可以添加代码来处理通过障碍前的准备行为  方向控制
+            directionControl();  
+            status = 3; // 跳过障碍物，进入状态3
+            unnormalNum = 0;   
+            break;  
+
+        case 3:  
+            // 在3状态，已经通过障碍物
+            //回归正常判断
+            status = 0;   
+            break;  
+
+        default:  
+            
+            status = 0;  
+            break;  
+    }
+
+    return status;  
+}
+
+bool readSensor() {     
+    
+         if (detectHighObstacle())
+         {
+            return 1;
+         }
+         else 
+         {
+            return 0;
+         }
+   
+
+    }                         //如果检测到障碍物返回1，否则返回0
+   
+
+
+// 检测边缘障碍物函数
+bool detectEdgeObstacle() {
+    // 检测最左边一列或者最右边一列是否有黑色元素
+    // 假设 map 的列数为 xm，行数为 ym  inside [ym][xm]
+    //int width = map[0].size();
+    //int height = map.size();
+
+    // 检测最左列
+    for (int i = 0; i < YM; ++i){
+        for(int j = 0; j<XM; ++j) {
+            if(basemap[i][j]=2){
+                ++j;
+                if (basemap[i][j] == 1) { // INSIDEMAP 0代表黑色元素，即障碍物
+                   return true;
+                }
+    }
+        }
+
+    // 检测最右列
+    for (int i = 0; i < YM; ++i){
+        for(int j = YY; j>0; --j) {
+            if(basemap[i][j]=2){
+                --j;
+                if (basemap[i][j] == 1) { // INSIDEMAP 0代表黑色元素，即障碍物
+                   return true;
+                }
+    }
+    }
+    return false;
+}
+    }
+// 检测高处障碍物函数
+bool detectHighObstacle() {
+    // 检测最高处左右两侧是否有黑色元素
+    // 假设 map 的列数为 width，行数为 height
+    //int width = map[0].size();
+    //int height = map.size();
+
+    // 找到最高行的索引
+    //int highestRow = 0;
+    uint8 BJ = 0；
+        for (int i = 1; i < XM; ++i) {
+            if (basemap[1][i]=2) {
+            ++i;
+            if(basemap[1][i]=1)
+            BJ = 1;
+            return BJ;
+            }
+            else 
+            {
+                BJ = 0;
+            }
+        }
+        for (int i = XX; i >0; --i) {
+            if (basemap[1][i]=2) {
+            --i;
+            if(basemap[1][i]=1)
+            BJ = 1;
+            return BJ;
+            }
+            else
+            {
+                BJ = 0;
+            }
+        }
+    if (BJ == 1){
+        return true;
+    }
+
+    else{
+        return false;
+    }
+}
+    // 检测最高
+
+}
