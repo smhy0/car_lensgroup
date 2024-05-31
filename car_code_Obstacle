@@ -1,3 +1,5 @@
+/*避障*/
+
 uint8_t goObstacle() {
     static uint8_t status = 0;                    // 起始状态
     static uint16_t tab = 0;                      // 计数器  备用
